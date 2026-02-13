@@ -3,11 +3,12 @@ import pandas as pd
 import numpy as np
 import joblib
 import plotly.graph_objects as go
+from pathlib import Path  # Added for reliable file pathing
 
 # Page configuration
 st.set_page_config(
     page_title="Car Price Prediction",
-    page_icon="",
+    page_icon="🚗",
     layout="wide"
 )
 
@@ -23,8 +24,12 @@ st.markdown("""
 # Load model
 @st.cache_resource
 def load_model():
+    # Construct the absolute path to the model file
+    # This ensures the app finds it on Streamlit Cloud
+    model_path = Path(__file__).parent / 'car_prediction_model.pkl'
+    
     try:
-        model = joblib.load('car_prediction_model.pkl')
+        model = joblib.load(model_path)
         return model
     except FileNotFoundError:
         return None
@@ -40,13 +45,14 @@ model = load_model()
 if model is None:
     st.error("**Model file not found!**")
     st.info("""
-    Please run the following command first:
-    ```
-    python car_price_prediction.py
-    ```
-    This will train and save the model.
+    **Deployment Checklist:**
+    1. Ensure `car_prediction_model.pkl` is uploaded to your GitHub repository.
+    2. Ensure the filename in GitHub is exactly `car_prediction_model.pkl` (it is case-sensitive).
+    3. Rename your `requirement.txt` to `requirements.txt` so Streamlit installs dependencies.
     """)
     st.stop()
+
+# ... (rest of your sidebar and prediction logic remains the same)
 
 # Sidebar inputs
 st.sidebar.title("Car Details")
